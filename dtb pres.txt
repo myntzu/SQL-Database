@@ -1,0 +1,53 @@
+Q3: Pet sitter's name and age with their avg rating for CATS. Sort based on DESC
+SELECT PH_Name, (TO_CHAR(SYSDATE, 'YYYY')-TO_CHAR(PH_DOB, 'YYYY'))
+AS Age, AVG(Feedback) AS "Average Rating:"
+FROM Service S, Pet P, Request R, Log L, Quotation Q, PetHandler PH
+WHERE S.ServType LIKE '%Sitter%'
+AND P.PType = 'Cat'
+AND Q.RequestID = R.RequestID
+AND L.Quotation = Q.QuotationID
+AND Q.PetHandler = PH.PHID
+AND R.Pet = P.PID
+GROUP BY PH_Name, (TO_CHAR(SYSDATE, 'YYYY')-TO_CHAR(PH_DOB, 'YYYY'))
+ORDER BY AVG(Feedback) DESC;
+
+
+Q6: Most popular insurance type
+SELECT MAX(Type) AS "Most Popular"
+FROM (SELECT I.Type, COUNT(I.Type)
+FROM Insurance I, Payment PA, Log L, Request R, Pet P, Owner O
+WHERE PA.PayCode = L.PaymentCode
+AND R.RequestID = L.Request
+AND P.OID = O.OID
+AND R.Pet = P.PID
+AND PA.InsuranceNo = I.InsuranceNo
+GROUP BY I.Type);
+
+
+
+Q9: Privileged membership program for owners who have sent their pets for 
+at least 3 times are eligible for a special member discount on the next visit
+SELECT O.OName, P.PID, COUNT(*) AS "Number of Visits"
+FROM Owner O, Pet P, Log L, Request R, Payment PA
+WHERE O.OID = P.OID AND P.PID = R.Pet
+AND L.PaymentCode = PA.PayCode
+AND R.RequestID = L.Request
+AND L.CancellationDate IS NULL
+GROUP BY O.OName, P.PID
+HAVING COUNT(*) > 2
+ORDER BY COUNT(*) DESC;
+
+VIEW:
+CREATE VIEW membership AS
+SELECT O.OName, P.PID, PName, COUNT(*) AS "Number of Visits"
+FROM Owner O, Pet P, Log L, Request R, Payment PA
+WHERE O.OID = P.OID AND P.PID = R.Pet
+AND L.PaymentCode = PA.PayCode
+AND R.RequestID = L.Request
+AND L.CancellationDate IS NULL
+GROUP BY O.OName, P.PID, PName
+HAVING COUNT(*) > 2
+ORDER BY COUNT(*) DESC;
+
+--> SELECT PName, OName
+FROM membership;
