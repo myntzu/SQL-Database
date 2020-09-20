@@ -1,2 +1,2 @@
-# SQL-Database
-To create, manage and query SQL databases (2019)
+# Oracle-SQL-Database
+To create, retrieve, manipulate and query data from SQL Databases as part of coursework projects for Database Fundamentals Course (2019)
